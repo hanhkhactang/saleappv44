@@ -1,6 +1,7 @@
-from flask import render_template, request
-from saleapp import app, utils
-from saleapp.admin import *
+from flask import render_template, request, redirect
+from saleapp import app, utils, login
+from saleapp.models import *
+from flask_login import login_user
 
 
 @app.route('/')
@@ -8,6 +9,24 @@ def index():
     categories = utils.read_data()
     return render_template('index.html',
                            categories=categories)
+
+
+@app.route("/login-admin", methods=['GET', 'POST'])
+def login_admin():
+    if request.method == 'POST':
+        username = request.form.get("username")
+        password = request.form.get("password")
+        user = User.query.filter(User.username == username.strip(),
+            User.password == password.strip()).first()
+        if user:
+            login_user(user=user)
+
+    return redirect("/admin")
+
+
+@login.user_loader
+def load_user(user_id):
+    return User.query.get(user_id)
 
 
 @app.route('/products')

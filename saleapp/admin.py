@@ -20,7 +20,6 @@ class CategoryModelView(ModelView):
     form_columns = ('name', )
 
 
-
 admin.add_view(CategoryModelView(Category, db.session))
 admin.add_view(CategoryModelView(Sach, db.session))
 admin.add_view(CategoryModelView(KhachHang, db.session))
