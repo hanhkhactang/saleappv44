@@ -2,6 +2,7 @@ from flask import render_template, request, redirect
 from saleapp import app, utils, login
 from saleapp.models import *
 from flask_login import login_user
+from saleapp.admin import *
 
 
 @app.route('/')

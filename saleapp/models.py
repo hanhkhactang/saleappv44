@@ -3,6 +3,7 @@ from sqlalchemy.orm import relationship, backref
 from saleapp import db
 from flask_login import UserMixin, logout_user, current_user
 from flask_admin import BaseView, expose
+from flask import redirect
 
 
 class User(db.Model, UserMixin):
@@ -24,6 +25,13 @@ class SaleBase(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable= False)
+
+
+class LogoutView(BaseView):
+    @expose('/')
+    def index(self):
+        logout_user()
+        return self.render("/admin")
 
 
 class Category(SaleBase):
@@ -64,12 +72,19 @@ class TacGia(SaleBase):
     __tablename__ = 'TacGia'
     Book = relationship('Sach', backref='TacGia', lazy = True)
 
+    def is_accessible(self):
+        return current_user.is_authenticated
+
 
 class PhieuThu(db.Model):
+    __tablename__ = 'PhieuThu'
     PhieuThu_id = Column(Integer, primary_key=True, autoincrement=True)
     NgayLap = Column(DateTime)
     SoTienThu = Column(Float)
     KhachHang_id = Column(Integer, ForeignKey('KhachHang.id'), nullable=False)
+
+    def is_accessible(self):
+        return current_user.is_authenticated
 
 
 class ContactView(BaseView):
@@ -78,18 +93,7 @@ class ContactView(BaseView):
         return self.render('admin/contact.html')
 
     def is_accessible(self):
-        return current_user.is_aurhenticated()
-
-
-class LogoutView(BaseView):
-    @expose('/')
-    def index(self):
-        logout_user()
-
-        return self.render("admin")
-
-    def is_accessible(self):
-        return current_user.is_aurhenticated()
+        return current_user.is_aurhenticated
 
 
 if __name__ == '__main__':
