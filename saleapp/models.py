@@ -63,7 +63,7 @@ class KhachHang(SaleBase):
 HoaDon = db.Table('HoaDon',
     Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
     Column('KhachHang_id', Integer, ForeignKey('KhachHang.id'), primary_key=True),
-    Column('SoLuongBang', Integer),
+    Column('SoLuongBan', Integer),
     Column('DonGia', Float),
     Column('TongTien', Float))
 

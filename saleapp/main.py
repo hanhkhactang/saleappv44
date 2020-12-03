@@ -12,6 +12,26 @@ def index():
                            categories=categories)
 
 
+@app.route('/shop')
+def shop():
+    return render_template('shop.html')
+
+
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+
+@app.route('/faq')
+def faq():
+    return render_template('faq.html')
+
+
+@app.route('/products/<int:product_id>')
+def product_single():
+    return render_template('product-single.html')
+
+
 @app.route("/login-admin", methods=['GET', 'POST'])
 def login_admin():
     if request.method == 'POST':
