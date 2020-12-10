@@ -1,23 +1,10 @@
-from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Table, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Table, DateTime, Enum
 from sqlalchemy.orm import relationship, backref
 from saleapp import db
 from flask_login import UserMixin, logout_user, current_user
 from flask_admin import BaseView, expose
 from flask import redirect
-
-
-class User(db.Model, UserMixin):
-    __tablename__ = 'user'
-
-    id = Column(Integer, primary_key=True,
-    autoincrement=True)
-    name = Column(String(50), nullable=False)
-    active = Column(Boolean, default=True)
-    username = Column(String(50), nullable=False)
-    password = Column(String(50), nullable=False)
-
-    def __str__(self):
-        return self.name
+from enum import Enum as UserEnum
 
 
 class SaleBase(db.Model):
@@ -25,6 +12,21 @@ class SaleBase(db.Model):
 
     id = Column(Integer, primary_key=True, autoincrement=True)
     name = Column(String(50), nullable= False)
+
+
+class UserRole(UserEnum):
+    USER = 1
+    ADMIN = 2
+
+
+class User(SaleBase, UserMixin):
+    __tablename__ = 'user'
+    email = Column(String(100))
+    username = Column(String(50), nullable=False, unique=True)
+    password = Column(String(100), nullable=False)
+    avatar = Column(String(100))
+    active = Column(Boolean, default=True)
+    user_role = Column(Enum(UserRole), default=UserRole.USER)
 
 
 class LogoutView(BaseView):
@@ -43,8 +45,22 @@ class Sach(SaleBase):
     soluong = Column(Integer, default=0)
     image = Column(String(100))
     gia = Column(Float)
-    category = relationship('Category', secondary ='theloaisach', lazy = 'subquery', backref = backref('Book', lazy=True))
+    category = relationship('Category', secondary='theloaisach', lazy = 'subquery', backref=backref('Book', lazy=True))
     tacgia_id = Column(Integer, ForeignKey('TacGia.id'), nullable=False)
+    hoadon = relationship('HoaDonSach', secondary='PhieuNhapSach', lazy='subquery', backref=backref('Book', lazy=True))
+
+
+class HoaDonSach(db.Model):
+    __tablename__ = 'HoaDonSach'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    decreption = Column(String(255))
+
+
+PhieuNhapSach = db.Table('PhieuNhapSach',
+                         Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
+                         Column('HoadonSach_id', Integer, ForeignKey('HoaDonSach.id'), primary_key=True),
+                         Column('SoLuongNhap', Integer),
+                         Column('NgayNhap', DateTime))
 
 
 theloaisach = db.Table('theloaisach',
