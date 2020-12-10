@@ -1,5 +1,5 @@
 import json, hashlib
-from saleapp.models import User, UserRole
+from saleapp.models import User, UserRole, Sach
 from saleapp import db
 
 
@@ -9,7 +9,7 @@ def read_data(path='data/categories.json'):
 
 
 def read_products(cate_id=None, kw=None, from_price=None, to_price=None):
-    products = read_data(path='data/products.json')
+    products = Sach.query
 
     if cate_id:
         cate_id = int(cate_id)
@@ -36,17 +36,25 @@ def get_product_by_id(product_id):
             return p
 
 
-def register_user(name, email, username, password, avatar):
+def add_user(name, email, username, password):
     password = str(hashlib.md5(password.strip().encode('utf-8')).hexdigest())
-    u = User(name=name,
-             email=email,
-             username=username,
-             password=password,
-             avatar=avatar,
-             user_role=UserRole.USER)
+    u = User(name=name, email=email,
+             username=username, password=password,
+             # avatar=avatar_path
+             )
     try:
         db.session.add(u)
         db.session.commit()
         return True
-    except:
+    except Exception as ex:
+        print(ex)
         return False
+
+
+def check_login(username, password, role=UserRole.ADMIN):
+    password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
+    user = User.query.filter(User.username == username,
+                             User.password == password,
+                             User.user_role == role).first()
+
+    return user

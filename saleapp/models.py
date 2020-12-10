@@ -24,7 +24,7 @@ class User(SaleBase, UserMixin):
     email = Column(String(100))
     username = Column(String(50), nullable=False, unique=True)
     password = Column(String(100), nullable=False)
-    avatar = Column(String(100))
+    # avatar = Column(String(100))
     active = Column(Boolean, default=True)
     user_role = Column(Enum(UserRole), default=UserRole.USER)
 

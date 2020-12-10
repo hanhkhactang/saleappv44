@@ -3,6 +3,7 @@ from saleapp import app, utils, login
 from saleapp.models import *
 from flask_login import login_user
 from saleapp.admin import *
+import hashlib
 import os, json
 
 
@@ -15,7 +16,14 @@ def index():
 
 @app.route('/shop')
 def shop():
-    return render_template('shop.html')
+    cate_id = request.args.get('category_id')
+    kw = request.args.get('kw')
+    from_price = request.args.get('from_price')
+    to_price = request.args.get('to_price')
+    products = utils.read_products(cate_id=cate_id, kw=kw, from_price=from_price, to_price=to_price)
+
+    return render_template('shop.html',
+                           products=products)
 
 
 @app.route('/about')
@@ -28,6 +36,20 @@ def faq():
     return render_template('faq.html')
 
 
+@app.route('/login1')
+def login1():
+    return render_template('login1.html')
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password', '')
+        user = utils.check_login(username=username,
+                                 password=password)
+        if user:
+            login_user(user=user)
+
+    return redirect('/')
+
+
 @app.route('/products/<int:product_id>')
 def product_single():
     return render_template('product-single.html')
@@ -38,6 +60,7 @@ def login_admin():
     if request.method == 'POST':
         username = request.form.get("username")
         password = request.form.get("password")
+        password = str(hashlib.md5(password.strip().encode("utf-8")).hexdigest())
         user = User.query.filter(User.username == username.strip(),
             User.password == password.strip()).first()
         if user:
@@ -51,7 +74,6 @@ def login_usr():
     if request.method == 'POST':
         username = request.form.get('username')
         password = request.form.get('password', '')
-
         user = utils.check_login(username=username,
                                  password=password)
         if user:
@@ -70,14 +92,14 @@ def register():
             name = request.form.get('name')
             email = request.form.get('email')
             username = request.form.get('username')
-            avatar = request.files["avatar"]
-
-            avatar_path = 'images/upload/%s' % avatar.filename
-            avatar.save(os.path.join(app.root_path,
-                                     'static/',
-                                     avatar_path))
+            # avatar = request.files["avatar"]
+            #
+            # avatar_path = 'images/upload/%s' % avatar.filename
+            # avatar.save(os.path.join(app.root_path,
+            #                          'static/',
+            #                          avatar_path))avatar_path=avatar_path
             if utils.add_user(name=name, email=email, username=username,
-                              password=password, avatar_path=avatar_path):
+                              password=password):
                 return redirect('/')
             else:
                 err_msg = "Hệ thống đang có lỗi! Vui lòng quay lại sau!"
@@ -85,6 +107,8 @@ def register():
             err_msg = "Mật khẩu KHÔNG khớp!"
 
     return render_template('register.html', err_msg=err_msg)
+
+
 
 
 @login.user_loader

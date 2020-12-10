@@ -5,7 +5,7 @@ from flask_login import LoginManager
 
 app = Flask(__name__)
 app.secret_key = '3^@&@&!&(@*UGUIEIU&@^!*(@&*(SS'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:Aa12345^@localhost/bookstoredb?charset=utf8'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://root:A!23456a@localhost/bookstoredb?charset=utf8'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = True
 
 db = SQLAlchemy(app=app)
