@@ -45,6 +45,7 @@ class Sach(SaleBase):
     soluong = Column(Integer, default=0)
     image = Column(String(100))
     gia = Column(Float)
+    descrip = Column(String(255))
     category = relationship('Category', secondary='theloaisach', lazy = 'subquery', backref=backref('Book', lazy=True))
     tacgia_id = Column(Integer, ForeignKey('TacGia.id'), nullable=False)
     hoadon = relationship('HoaDonSach', secondary='PhieuNhapSach', lazy='subquery', backref=backref('Book', lazy=True))

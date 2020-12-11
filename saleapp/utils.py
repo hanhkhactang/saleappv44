@@ -30,10 +30,11 @@ def read_products(cate_id=None, kw=None, from_price=None, to_price=None):
 
 
 def get_product_by_id(product_id):
-    products = read_data('data/products.json')
-    for p in products:
-        if p['id'] == product_id:
-            return p
+    return Sach.query.get(product_id)
+    # products = read_data('data/products.json')
+    # for p in products:
+    #     if p['id'] == product_id:
+    #         return p
 
 
 def add_user(name, email, username, password):
@@ -51,10 +52,10 @@ def add_user(name, email, username, password):
         return False
 
 
-def check_login(username, password, role=UserRole.ADMIN):
+# role=UserRole.ADMIN, User.user_role == role
+def check_login(username, password, role=UserRole):
     password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
     user = User.query.filter(User.username == username,
-                             User.password == password,
-                             User.user_role == role).first()
+                             User.password == password).first()
 
     return user

@@ -9,9 +9,14 @@ import os, json
 
 @app.route('/')
 def index():
-    categories = utils.read_data()
+    cate_id = request.args.get('category_id')
+    kw = request.args.get('kw')
+    from_price = request.args.get('from_price')
+    to_price = request.args.get('to_price')
+    products = utils.read_products(cate_id=cate_id, kw=kw, from_price=from_price, to_price=to_price)
+
     return render_template('index.html',
-                           categories=categories)
+                           products=products)
 
 
 @app.route('/shop')
@@ -69,7 +74,7 @@ def login_admin():
     return redirect("/admin")
 
 
-@app.route('/login', methods=['post'])
+@app.route('/login', methods=['post', 'get'])
 def login_usr():
     if request.method == 'POST':
         username = request.form.get('username')
@@ -78,6 +83,7 @@ def login_usr():
                                  password=password)
         if user:
             login_user(user=user)
+            return redirect('/')
 
     return redirect('/admin')
 
@@ -116,22 +122,22 @@ def load_user(user_id):
     return User.query.get(user_id)
 
 
-@app.route('/products')
-def product_list():
-    cate_id = request.args.get('category_id')
-    kw = request.args.get('kw')
-    from_price = request.args.get('from_price')
-    to_price = request.args.get('to_price')
-    products = utils.read_products(cate_id=cate_id, kw=kw, from_price=from_price, to_price=to_price)
+# @app.route('/products')
+# def product_list():
+#     cate_id = request.args.get('category_id')
+#     kw = request.args.get('kw')
+#     from_price = request.args.get('from_price')
+#     to_price = request.args.get('to_price')
+#     products = utils.read_products(cate_id=cate_id, kw=kw, from_price=from_price, to_price=to_price)
+#
+#     return render_template('product-list.html',
+#                            products=products)
 
-    return render_template('product-list.html',
-                           products=products)
 
-
-@app.route('/products/<int:product_id>')
+@app.route('/shop/<int:product_id>')
 def product_detail(product_id):
     product = utils.get_product_by_id(product_id=product_id)
-    return render_template('product-detail.html',
+    return render_template('product-single.html',
                            product=product)
 
 
