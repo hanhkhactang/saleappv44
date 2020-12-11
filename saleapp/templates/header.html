@@ -20,9 +20,18 @@
                             <li class="navbar-item">
                                 <a href="{{ url_for('faq') }}" class="nav-link">FAQ</a>
                             </li>
+                            {% if current_user.is_authenticated %}
+                              <li class="navbar-item">
+                                <a href="#" class="nav-link">Thong Tin</a>
+                            </li>
+                            <li class="navbar-item">
+                                <a href="/logout" class="nav-link">Loout</a>
+                            </li>
+                            {% else %}
                             <li class="navbar-item">
                                 <a href="{{ url_for('login1') }}" class="nav-link">Login</a>
                             </li>
+                            {% endif %}
                         </ul>
                         <div class="cart my-2 my-lg-0">
                             <span>

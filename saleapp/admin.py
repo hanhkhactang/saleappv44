@@ -10,10 +10,6 @@ from flask_admin import BaseView, expose
 from flask import redirect
 
 
-
-
-
-
 class CategoryModelView(ModelView):
 
     def is_accessible(self):
@@ -48,3 +44,4 @@ admin.add_view(CategoryModelView(TacGia, db.session))
 admin.add_view(CategoryModelView(PhieuThu, db.session))
 admin.add_view(ContactView(name='Liên hệ'))
 admin.add_view(LogoutView(name="Đăng xuất"))
+

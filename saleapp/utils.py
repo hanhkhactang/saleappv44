@@ -53,9 +53,19 @@ def add_user(name, email, username, password):
 
 
 # role=UserRole.ADMIN, User.user_role == role
-def check_login(username, password, role=UserRole):
+def check_login(username, password, role=UserRole.ADMIN):
     password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
     user = User.query.filter(User.username == username,
-                             User.password == password).first()
+                             User.password == password,
+                             User.user_role == role).first()
+
+    return user
+
+
+def check_login_user(username, password, role=UserRole.USER):
+    password = str(hashlib.md5(password.encode('utf-8')).hexdigest())
+    user = User.query.filter(User.username == username,
+                             User.password == password,
+                             User.user_role == role).first()
 
     return user
