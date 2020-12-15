@@ -1,3 +1,4 @@
+from datetime import datetime
 from sqlalchemy import Column, Integer, String, Boolean, Float, ForeignKey, Table, DateTime, Enum
 from sqlalchemy.orm import relationship, backref
 from saleapp import db
@@ -27,6 +28,7 @@ class User(SaleBase, UserMixin):
     # avatar = Column(String(100))
     active = Column(Boolean, default=True)
     user_role = Column(Enum(UserRole), default=UserRole.USER)
+    receipts = relationship('Receipt', backref='customer', lazy=True)
 
 
 class LogoutView(BaseView):
@@ -48,7 +50,9 @@ class Sach(SaleBase):
     descrip = Column(String(255))
     category = relationship('Category', secondary='theloaisach', lazy = 'subquery', backref=backref('Book', lazy=True))
     tacgia_id = Column(Integer, ForeignKey('TacGia.id'), nullable=False)
-    hoadon = relationship('HoaDonSach', secondary='PhieuNhapSach', lazy='subquery', backref=backref('Book', lazy=True))
+    receipt_details = relationship('ReceiptDetail', backref='Book', lazy=True)
+
+
 
 
 class HoaDonSach(db.Model):
@@ -69,20 +73,27 @@ theloaisach = db.Table('theloaisach',
     Column('Cat_id', Integer, ForeignKey('category.id'), primary_key=True))
 
 
-class KhachHang(SaleBase):
-    __tablename__ = 'KhachHang'
-    DiaChi = Column(String(255))
-    SDT = Column(Integer)
-    Email = Column(String(50))
-    phieuthu = relationship('PhieuThu', backref='KhachHang', lazy=True)
+#
+# HoaDon = db.Table('HoaDon',
+#     Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
+#     Column('KhachHang_id', Integer, ForeignKey('KhachHang.id'), primary_key=True),
+#     Column('SoLuongBan', Integer),
+#     Column('DonGia', Float),
+#     Column('TongTien', Float))
+class Receipt(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    created_date = Column(DateTime, default=datetime.today())
+    customer_id = Column(Integer, ForeignKey(User.id))
+    details = relationship('ReceiptDetail',
+                           backref='receipt', lazy=True)
 
 
-HoaDon = db.Table('HoaDon',
-    Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
-    Column('KhachHang_id', Integer, ForeignKey('KhachHang.id'), primary_key=True),
-    Column('SoLuongBan', Integer),
-    Column('DonGia', Float),
-    Column('TongTien', Float))
+class ReceiptDetail(db.Model):
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    receipt_id = Column(Integer, ForeignKey(Receipt.id), nullable=False)
+    product_id = Column(Integer, ForeignKey(Sach.id), nullable=False)
+    quantity = Column(Integer, default=0)
+    price = Column(Integer, default=0)
 
 
 class TacGia(SaleBase):
@@ -98,7 +109,7 @@ class PhieuThu(db.Model):
     PhieuThu_id = Column(Integer, primary_key=True, autoincrement=True)
     NgayLap = Column(DateTime)
     SoTienThu = Column(Float)
-    KhachHang_id = Column(Integer, ForeignKey('KhachHang.id'), nullable=False)
+    KhachHang_id = Column(Integer, ForeignKey('user.id'), nullable=False)
 
     def is_accessible(self):
         return current_user.is_authenticated

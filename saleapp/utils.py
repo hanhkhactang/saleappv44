@@ -1,6 +1,7 @@
 import json, hashlib
-from saleapp.models import User, UserRole, Sach
+from saleapp.models import User, UserRole, Sach, Receipt, ReceiptDetail
 from saleapp import db
+from flask_login import current_user
 
 
 def cart_stats(cart):
@@ -18,25 +19,35 @@ def read_data(path='data/categories.json'):
         return json.load(f)
 
 
-def read_products(cate_id=None, kw=None, from_price=None, to_price=None):
+def read_products(cate_id=None, kw=None):
     products = Sach.query
 
     if cate_id:
-        cate_id = int(cate_id)
-        products = [p for p in products\
-                    if p['category_id'] == cate_id]
+        products = products.filter(Sach.catgory_id == cate_id)
 
     if kw:
-        products = [p for p in products \
-                    if p['name'].find(kw) >= 0]
+        products = products.filter(Sach.name.contains(kw))
 
-    if from_price and to_price:
-        from_price = float(from_price)
-        to_price = float(to_price)
-        products = [p for p in products \
-                    if to_price >= p['price'] >= from_price]
 
-    return products
+
+    return products.all()
+
+    # if cate_id:
+    #     cate_id = int(cate_id)
+    #     products = [p for p in products\
+    #                 if p['category_id'] == cate_id]
+    #
+    # if kw:
+    #     products = [p for p in products \
+    #                 if p['name'].find(kw) >= 0]
+    #
+    # if from_price and to_price:
+    #     from_price = float(from_price)
+    #     to_price = float(to_price)
+    #     products = [p for p in products \
+    #                 if to_price >= p['price'] >= from_price]
+    #
+    # return products
 
 
 def get_product_by_id(product_id):
@@ -79,3 +90,33 @@ def check_login_user(username, password, role=UserRole.USER):
                              User.user_role == role).first()
 
     return user
+
+
+def cart_stats(cart):
+    total_quantity, total_amount = 0, 0
+    if cart:
+        for p in cart.values():
+            total_quantity = total_quantity + p["quantity"]
+            total_amount = total_amount + p["quantity"] * p["price"]
+
+    return total_quantity, total_amount
+
+
+def add_receipt(cart):
+    if cart:
+        receipt = Receipt(customer_id=1)
+        db.session.add(receipt)
+        for p in list(cart.values()):
+            detail = ReceiptDetail(receipt=receipt,
+                                product_id=int(p["id"]),
+                                quantity=p["quantity"],
+                                price=p["price"])
+            db.session.add(detail)
+
+        try:
+            db.session.commit()
+            return True
+        except Exception as ex:
+            print(ex)
+
+    return False

@@ -38,7 +38,10 @@
                         <div class="item">
                             <a href="{{ url_for('product_detail', product_id=p.id) }}"><img src="{{ url_for('static', filename=p.image) }}" alt="{{ p.name }}"></a>
                             <h3><a href="{{ url_for('product_detail', product_id=p.id) }}">{{ p.name }}</a></h3>
-                            <h6><span class="price">{{ p.gia }}</span> / <a href="#">Buy Now</a></h6>
+                            <h6><span class="price">{{ p.gia }}</span> /
+                                <a href="javascript:;" onclick="addToCart({{ p.id }}, '{{ p.name }}', {{ p.gia }})">
+                                    Buy Now</a>
+                            </h6>
                         </div>
                     </div>
 

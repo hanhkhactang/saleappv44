@@ -1,7 +1,7 @@
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
 from saleapp import admin, db
-from saleapp.models import Category, Sach, KhachHang, TacGia, PhieuThu, LogoutView, ContactView, PhieuNhapSach, HoaDonSach
+from saleapp.models import Category, Sach, TacGia, PhieuThu, LogoutView, ContactView, PhieuNhapSach, HoaDonSach
 from flask_login import current_user, UserMixin
 from sqlalchemy.orm import relationship, backref
 from saleapp import db
@@ -38,7 +38,6 @@ class ContactView(BaseView):
 
 admin.add_view(CategoryModelView(Category, db.session))
 admin.add_view(CategoryModelView(Sach, db.session))
-admin.add_view(CategoryModelView(KhachHang, db.session))
 admin.add_view(CategoryModelView(HoaDonSach, db.session))
 admin.add_view(CategoryModelView(TacGia, db.session))
 admin.add_view(CategoryModelView(PhieuThu, db.session))
