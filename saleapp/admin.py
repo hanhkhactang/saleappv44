@@ -1,13 +1,13 @@
 from flask_admin.contrib.sqla import ModelView
 from flask_admin import BaseView, expose
-from saleapp import admin, db
-from saleapp.models import Category, Sach, TacGia, PhieuThu, LogoutView, ContactView, PhieuNhapSach, HoaDonSach
+from saleapp import admin, db, utils
+from saleapp.models import Category, Sach, TacGia, PhieuThu, LogoutView, ContactView, PhieuNhapSach, HoaDonSach,User,UserRole
 from flask_login import current_user, UserMixin
 from sqlalchemy.orm import relationship, backref
 from saleapp import db
-from flask_login import UserMixin, logout_user, current_user
+from flask_login import UserMixin, logout_user, current_user, login_user
 from flask_admin import BaseView, expose
-from flask import redirect
+from flask import redirect, request
 
 
 class CategoryModelView(ModelView):
@@ -25,6 +25,7 @@ class LogoutView(BaseView):
 
     def is_accessible(self):
         return current_user.is_authenticated
+
 
 
 class ContactView(BaseView):

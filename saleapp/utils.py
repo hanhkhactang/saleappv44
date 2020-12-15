@@ -1,6 +1,6 @@
 import json, hashlib
 from saleapp.models import User, UserRole, Sach, Receipt, ReceiptDetail
-from saleapp import db
+from saleapp import *
 from flask_login import current_user
 
 
@@ -100,6 +100,10 @@ def cart_stats(cart):
             total_amount = total_amount + p["quantity"] * p["price"]
 
     return total_quantity, total_amount
+
+
+def check_mail(email):
+    return User.query.filter(User.email == email).first()
 
 
 def add_receipt(cart):
