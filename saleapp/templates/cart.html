@@ -7,14 +7,15 @@
     <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
     <link href="{{ url_for('static', filename='css/style.css') }}" rel="stylesheet" />
     <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" rel="stylesheet">
 </head>
 <body>
+    {% block header %}
+        {% include 'header.html' %}
+    {% endblock %}
     <div class="container">
         <h1 class="text-center text-info">THANH TOÁN GIỎ HÀNG</h1>
-        <div class="alert alert-warning">
-            <h3>Số lượng SP: {{ cart_info.total_quantity }}</h3>
-            <h3>Tổng tiền: {{ cart_info.total_amount }} VNĐ</h3>
-        </div>
+
 
         <table class="table">
             <tr>
@@ -30,11 +31,19 @@
                 <td>{{ p.name }}</td>
                 <td>{{ p.price }}</td>
                 <td>
-                    <div class="form-group">
-                        <input type="number"
-                               value="{{ p.quantity }}"
-                               class="form-control" />
-                    </div>
+                    <i class="fas fa-minus-circle"></i>
+                    <label id="number-quantity" for="number">{{ p.quantity }}</label>
+                    <a href="javascript:;" onclick="addToCart({{ p.id }}, '{{ p.name }}', {{ p.gia }})" class="single-btn">
+                        <i class="fas fa-plus-circle"></i>
+                    </a>
+<!--                    <div class="form-group">-->
+<!--                        <input type="number"-->
+<!--                               value="{{ p.quantity }}"-->
+<!--                               class="form-control" />-->
+<!--                    </div>-->
+                </td>
+                <td class="bt">
+                    <a href="{{ url_for('delete_product', id=p.id) }}" ><input type="button" value="Xóa" class="btn btn-info"></a>
                 </td>
             </tr>
             {% endfor %}
@@ -44,11 +53,16 @@
             </tr>
             {% endif %}
         </table>
+        <div class="alert alert-warning">
+            <h3>Số lượng SP: {{ cart_info.total_quantity }}</h3>
+            <h3>Tổng tiền: {{ cart_info.total_amount }} VNĐ</h3>
+        </div>
         <input  type="button"
                 onclick="pay()"
                 value="Thanh toán"
                 class="btn btn-danger" />
     </div>
-{% include 'footer.html' %}
+    {% block footer %}
+        {% include 'footer.html' %}
+    {% endblock %}
 </body>
-</html>

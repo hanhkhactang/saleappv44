@@ -1,4 +1,4 @@
-from flask import render_template, request, redirect, session, jsonify
+from flask import render_template, request, redirect, session, jsonify, url_for
 from saleapp import app, utils, login, decorator, mail
 from saleapp.models import *
 from flask_login import login_user
@@ -28,7 +28,6 @@ def index():
 
     return render_template('index.html',
                            products=products)
-
 
 
 @app.route('/shop')
@@ -138,7 +137,6 @@ def register():
 @app.route('/forgot', methods=['get', 'post'])
 @app.route("/forgot_password", methods=['GET', 'POST'])
 def forgot_password():
-    # Chức năng tìm kiếm trên thanh menu seacrh
     kw = request.args.get('kw')
     if kw:
         return redirect(url_for('search_by_kw', kw=kw))
@@ -147,99 +145,65 @@ def forgot_password():
     if request.method == 'POST':
         try:
             email = request.form.get("email")
-            # Nếu check có email của khách hàng trong db
             if utils.check_mail(email=email):
-                # Thì chuyển đến trang thông báo đã gửi yêu cầu khôi phục
                 return redirect(url_for("request_sent", user_email=email))
             else:
                 err_msg = "Nhập sai email"
         except IntegrityError:
             err_msg = "Nhập sai email"
-
-    # Render trang báo đã gửi mail khôi phục
     return render_template("forgot-password.html", err_msg=err_msg)
 
 
-# Xác thực email người dùng
 @app.route('/email-verification/<user_email>', methods=["GET", "POST"])
 def email_verify(user_email):
-    # Chức năng tìm kiếm trên thanh menu seacrh
     kw = request.args.get('kw')
     if kw:
         return redirect(url_for('search_by_kw', kw=kw))
-
-    # Tạo mã xác thực và gửi mail xác thực
-    # Tạo token, dumps salt để tham chiếu với loads salt khi cần xác thực token
     token = randomToken.dumps(user_email, salt="email_confirm")
-    # Tạo nội dung email
     msg = Message('Thư xác nhận', sender="hanhkhactang@gmail.com", recipients=[user_email])
     link = url_for('confirm_email', token=token, _external=True)
     msg.body = 'Vui lòng nhấn vào liên kết sau để xác nhận email. Liên kết của bạn là: {}'.format(link)
-    # Gửi
     mail.send(msg)
-
-    # Thông báo người dùng là đã gửi email
     return render_template("verify-email.html", user_email=user_email, )
 
 
-# Xác thực email người dùng
-# Khi người dùng nhấn vào liên kết xác thực gửi kèm mail, điều hướng đến đây
-# Xác thực email
 @app.route('/confirm_email/<token>')
 def confirm_email(token):
-    # Chức năng tìm kiếm trên thanh menu seacrh
     kw = request.args.get('kw')
     if kw:
         return redirect(url_for('search_by_kw', kw=kw))
 
     try:
-        # Check email loads salt có email dumps salt lúc gửi không
         email = randomToken.loads(token, salt='email_confirm', max_age=900)
     except SignatureExpired:
         return render_template('verify-expired.html')
     return render_template('verify-success.html', email=email)
 
 
-# Chức năng khôi phục tài khoản qua email
-# Thực hiện khi người dùng nhập đúng email có tồn tại trong db
 @app.route('/request_sent/<user_email>', methods=["GET", "POST"])
 def request_sent(user_email):
-    # Chức năng tìm kiếm trên thanh menu seacrh
     kw = request.args.get('kw')
     if kw:
         return redirect(url_for('search_by_kw', kw=kw))
-
-    # Tạo mã xác thực và gửi mail xác thực
-    # Tạo token, dumps salt để tham chiếu với loads salt khi cần xác thực token
     token = randomToken.dumps(user_email, salt="recovery_account")
-    # Tạo nội dung email
     msg = Message('Khôi phục tài khoản', sender='hanhkhactang@gmail.com', recipients=[user_email])
     link = url_for('recovery_account', token=token, user_email=user_email, _external=True)
     msg.body = 'Bạn đang thực hiện đặt lại mật khẩu, liên kết sẽ hết hạn sau khoảng 15 phút. Nhấn vào liên kết sau ' \
                'để đặt lại mật khẩu: {}'.format(link)
-    # Tiến hành gửi mail
     mail.send(msg)
-
-    # Thông báo với khách hàng là đã gửi email khôi phục
     return render_template("recovery-sent.html", user_email=user_email)
 
 
-# Chức năng khôi phục tài khoản qua email
-# Khi khách hàng nhấn vào liên kết được gửi kèm mail, điều hướng đến đây
 @app.route('/recovery_account/<token>/<user_email>', methods=['GET', 'POST'])
 def recovery_account(token, user_email):
-    # Chức năng tìm kiếm trên thanh menu seacrh
     kw = request.args.get('kw')
     if kw:
         return redirect(url_for('search_by_kw', kw=kw))
 
     try:
-        # Kiểm tra token loads salt có bằng với dumps salt lúc gửi hay không, max_age=15phút
         e = randomToken.loads(token, salt='recovery_account', max_age=3600)
-    # Nếu token hết hạn trả thông báo cho khách hàng
     except SignatureExpired:
         return render_template('verify-expired.html')
-    # Nếu token hơp lệ tiến hành cho người dùng đặt lại mật khẩu
     if request.method == 'POST':
         password = request.form.get("password")
         user = utils.check_mail(user_email)
@@ -247,7 +211,6 @@ def recovery_account(token, user_email):
             user.password = str(hashlib.md5(password.strip().encode("utf-8")).hexdigest())
             db.session.add(user)
             db.session.commit()
-            # Hiển thị thông báo khôi phục thành công, yêu cầu đăng nhập lại
             return render_template('password-reset.html')
 
     return render_template('recovery-account.html')
@@ -334,6 +297,20 @@ def pay():
     return jsonify({
         "message": "Failed"
     })
+
+
+@app.route('/cart/delete/<int:id>')
+def delete_product(id):
+    try:
+        session.modified = True
+        for key, item in session['cart'].items():
+            if int(key) == id:
+                session['cart'].pop(key, None)
+                return redirect(url_for('payment'))
+    except Exception as ex:
+        print(ex)
+        return redirect(url_for('payment'))
+
 
 
 if __name__ == '__main__':

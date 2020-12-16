@@ -11,8 +11,16 @@ function addToCart(id, name, gia) {
         }
     }).then(res => res.json()).then(data => {
         console.info(data);
-        var cart = document.getElementById("cart-info");
-        cart.innerText = `${data.total_quantity} - ${data.total_amount} VNĐ`;
+        location.reload()
+        var stats = document.getElementById('cart-stats')
+        var total_number = document.getElementById('total_number')
+        var number = document.getElementById('number_quantity')
+        var total_price = document.getElementById('total_price')
+        total_number.innerText = '${data.total_quantity}';
+        total_price.innerText = '${data.total_amount} VNĐ';
+//        var cart = document.getElementById("cart-info");
+        number.innerText = '${data.total_quantity}';
+//        cart.innerText = `${data.total_quantity} - ${data.total_amount} VNĐ`;
     }).catch(err => {
         console.log(err);
     })

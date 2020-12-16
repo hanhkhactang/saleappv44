@@ -1,0 +1,39 @@
+{% extends 'admin/master.html' %}
+
+{% block body  %}
+    <form  method="POST"  action="" enctype="multipart/form-data">
+        <h3 class="text-center text-danger">Phiếu Nhập Sách</h3>
+        {%if err_msg %}
+        <div class="alert alert-warning">
+            {{err_msg}}
+        </div>
+        {% endif %}
+        <div class = "form-group">
+            <label>Ngày :</label>
+            <input type="datetime-local"
+                   name ="date"
+                   class ="form-control">
+        </div>
+         <div class = "form-group">
+            <label>Tên Sách :</label>
+             <select name="idsach" class="form-control">
+             {% for p in sach %}
+                 <option value="{{p.id}}">{{p.name}}</option>
+             {% endfor %}
+             </select>
+        </div>
+         <div class = "form-group">
+             <label>Số Lượng :</label>
+            <input type="number"
+                   name ="soLuong"
+                   class ="form-control"
+                   placeholder="Nhập Số Lượng..."/>
+        </div>
+        <div class = "form-group">
+              <input type ="submit"
+                     value="Nhập Sách"
+                     class ="btn btn-danger"/>
+        </div>
+    </form>
+
+{% endblock %}

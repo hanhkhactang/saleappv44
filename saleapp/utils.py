@@ -1,5 +1,5 @@
 import json, hashlib
-from saleapp.models import User, UserRole, Sach, Receipt, ReceiptDetail
+from saleapp.models import User, UserRole, Sach, Receipt, ReceiptDetail, PhieuNhapSach, HoaDonSach
 from saleapp import *
 from flask_login import current_user
 
@@ -27,9 +27,6 @@ def read_products(cate_id=None, kw=None):
 
     if kw:
         products = products.filter(Sach.name.contains(kw))
-
-
-
     return products.all()
 
     # if cate_id:
@@ -124,3 +121,31 @@ def add_receipt(cart):
             print(ex)
 
     return False
+
+
+def nhap_sach(ngaynhap, idsach , soluong):
+
+    sach = Sach.query.get(idsach)
+    p = sach.id
+
+    sls = sach.soluong
+    if sls <= int(300) and int(soluong) <= int(400):
+        phieunhap =HoaDonSach(ngayNhap=ngaynhap)
+        db.session.add(phieunhap)
+        detail = PhieuNhapSach(phieunhap = phieunhap,
+                                soLuong=soluong,
+                                  sach_id = idsach)
+        db.session.add(detail)
+        soluong.query.filter(p == soluong.sach_id).delete()
+        soluongsach = soluong(sach_id = idsach,
+                                      soLuong = sls + int(soluong))
+        db.session.add(soluongsach)
+        try:
+            db.session.commit()
+            return True
+        except Exception as ex:
+            print(ex)
+    return False
+
+
+

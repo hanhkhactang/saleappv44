@@ -52,20 +52,30 @@ class Sach(SaleBase):
     tacgia_id = Column(Integer, ForeignKey('TacGia.id'), nullable=False)
     receipt_details = relationship('ReceiptDetail', backref='Book', lazy=True)
 
+    def __repr__(self) -> str:
+        return repr(self.name)
+
 
 
 
 class HoaDonSach(db.Model):
     __tablename__ = 'HoaDonSach'
     id = Column(Integer, primary_key=True, autoincrement=True)
+    ngaynhap = Column(DateTime)
     decreption = Column(String(255))
 
 
-PhieuNhapSach = db.Table('PhieuNhapSach',
-                         Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
-                         Column('HoadonSach_id', Integer, ForeignKey('HoaDonSach.id'), primary_key=True),
-                         Column('SoLuongNhap', Integer),
-                         Column('NgayNhap', DateTime))
+class PhieuNhapSach(db.Model):
+    Book_id = Column(Integer, ForeignKey('Book.id'),primary_key=True)
+    HoaDonSach_id = Column(Integer, ForeignKey('HoaDonSach.id'),primary_key=True)
+    soluongnhap = Column(Integer)
+
+
+# PhieuNhapSach = db.Table('PhieuNhapSach',
+#                          Column('Book_id', Integer, ForeignKey('Book.id'), primary_key=True),
+#                          Column('HoadonSach_id', Integer, ForeignKey('HoaDonSach.id'), primary_key=True),
+#                          Column('SoLuongNhap', Integer),
+#                          Column('NgayNhap', DateTime))
 
 
 theloaisach = db.Table('theloaisach',
@@ -95,10 +105,16 @@ class ReceiptDetail(db.Model):
     quantity = Column(Integer, default=0)
     price = Column(Integer, default=0)
 
+    def __repr__(self) -> str:
+        return repr(self.id)
+
 
 class TacGia(SaleBase):
     __tablename__ = 'TacGia'
     Book = relationship('Sach', backref='TacGia', lazy = True)
+
+    def __repr__(self):
+        return repr(self.name)
 
     def is_accessible(self):
         return current_user.is_authenticated
